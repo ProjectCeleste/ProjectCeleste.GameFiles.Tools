@@ -24,6 +24,8 @@ skip_commits:
   - 'appveyor.yml'
   - '.gitattributes'
   - '.gitignore'
+  - 'LICENSE'
+  - 'README.md'
 
 # 
 pull_requests:
