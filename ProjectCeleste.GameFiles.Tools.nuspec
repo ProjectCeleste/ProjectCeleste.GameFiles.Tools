@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>ProjectCeleste.GameFiles.Tools</id>
+		<version>1.0.0</version>
+		<title>ProjectCeleste.GameFiles.Tools</title>
+		<authors>ProjectCeleste</authors>
+		<owners>ProjectCeleste</owners>
+		<licenseUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools</projectUrl>
+		<iconUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/icon.ico</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>GameFiles Tools For Age Of Empires Online Celeste Fan Project
+		
+		Visit Us: https://www.projectceleste.com/
+		
+		Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created under Microsoft's Game Content Usage Rules using assets from Age of Empires Online, and it is not endorsed by or affiliated with Microsoft (See: https://www.xbox.com/en-us/developers/rules).
+		</description>
+		<releaseNotes>- v1.0.0 : First public version.</releaseNotes>
+		<copyright>Copyright 2019</copyright>
+		<tags>projectceleste aoeo ageofempires</tags>
+		<dependencies> 
+			<dependency id="Unofficial.Ionic.Zip" version="1.9.1.8" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="ProjectCeleste.GameFiles.Tools\bin\Release\ProjectCeleste.GameFiles.Tools.dll" target="lib\Release\ProjectCeleste.GameFiles.Tools.dll" />
+		<!--<file src="ProjectCeleste.GameFiles.Tools\bin\Debug\ProjectCeleste.GameFiles.Tools.dll" target="lib\Debug\ProjectCeleste.GameFiles.Tools.dll" />
+		<file src="ProjectCeleste.GameFiles.Tools\bin\Debug\ProjectCeleste.GameFiles.Tools.pdb" target="lib\Debug\ProjectCeleste.GameFiles.Tools.pdb" />-->
+	</files>
+</package>
