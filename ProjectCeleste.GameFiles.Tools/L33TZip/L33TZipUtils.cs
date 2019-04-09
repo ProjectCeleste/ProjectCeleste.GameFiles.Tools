@@ -163,11 +163,32 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 }
             }
         }
-
+        
         public static bool IsL33TZipFile(string fileName)
         {
             bool result;
             using (var fileStream = File.Open(fileName, FileMode.Open))
+            {
+                using (var reader = new BinaryReader(fileStream))
+                {
+                    try
+                    {
+                        var head = new string(reader.ReadChars(4));
+                        result = head == "l33t" || head == "l66t";
+                    }
+                    catch (Exception)
+                    {
+                        result = false;
+                    }
+                }
+            }
+            return result;
+        }
+
+        public static bool IsL33TZipFile(byte[] data)
+        {
+            bool result;
+            using (var fileStream = new MemoryStream(data, false))
             {
                 using (var reader = new BinaryReader(fileStream))
                 {
@@ -277,62 +298,80 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             {
                 using (var reader = new BinaryReader(fileStream))
                 {
-                    //Header && Length
-                    var head = new string(reader.ReadChars(4));
-                    long length;
-                    switch (head.ToLower())
-                    {
-                        case "l33t":
-                            length = reader.ReadInt32();
-                            //Skip deflate specification (2 Byte)
-                            reader.BaseStream.Position = 10L;
-                            break;
-                        case "l66t":
-                            length = reader.ReadInt64();
-                            //Skip deflate specification (2 Byte)
-                            reader.BaseStream.Position = 14L;
-                            break;
-                        default:
-                            throw new FileLoadException($"'l33t' header not found, file: '{fileName}'");
-                    }
+                    return DoExtractL33TZipFile(reader);
+                }
+            }
+        }
 
-                    //
-                    using (var a = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
+        public static byte[] DoExtractL33TZipFile(byte[] data)
+        {
+            using (var fileStream = new MemoryStream(data, false))
+            {
+                using (var reader = new BinaryReader(fileStream))
+                {
+                    return DoExtractL33TZipFile(reader);
+                }
+            }
+        }
+
+        public static byte[] DoExtractL33TZipFile(BinaryReader reader)
+        {
+            reader.BaseStream.Seek(0, SeekOrigin.Begin);
+
+            //Header && Length
+            var head = new string(reader.ReadChars(4));
+            long length;
+            switch (head.ToLower())
+            {
+                case "l33t":
+                    length = reader.ReadInt32();
+                    //Skip deflate specification (2 Byte)
+                    reader.BaseStream.Position = 10L;
+                    break;
+                case "l66t":
+                    length = reader.ReadInt64();
+                    //Skip deflate specification (2 Byte)
+                    reader.BaseStream.Position = 14L;
+                    break;
+                default:
+                    throw new FileLoadException("'l33t' header not found");
+            }
+
+            //
+            using (var a = new DeflateStream(reader.BaseStream, CompressionMode.Decompress))
+            {
+                using (var fileStreamFinal = new MemoryStream())
+                {
+                    using (var final = new BinaryWriter(fileStreamFinal))
                     {
-                        using (var fileStreamFinal = new MemoryStream())
+                        var buffer = new byte[4096];
+                        int read;
+                        var totalread = 0L;
+                        while ((read = a.Read(buffer, 0, buffer.Length)) > 0)
                         {
-                            using (var final = new BinaryWriter(fileStreamFinal))
+                            //
+                            if (read > length)
                             {
-                                var buffer = new byte[4096];
-                                int read;
-                                var totalread = 0L;
-                                while ((read = a.Read(buffer, 0, buffer.Length)) > 0)
-                                {
-                                    //
-                                    if (read > length)
-                                    {
-                                        totalread += length;
-                                        final.Write(buffer, 0, (int) length);
-                                    }
-                                    else if (totalread + read <= length)
-                                    {
-                                        totalread += read;
-                                        final.Write(buffer, 0, read);
-                                    }
-                                    else if (totalread + read > length)
-                                    {
-                                        var leftToRead = length - totalread;
-                                        totalread += leftToRead;
-                                        final.Write(buffer, 0, (int) leftToRead);
-                                    }
-
-                                    //
-                                    if (totalread >= length)
-                                        break;
-                                }
-                                return fileStreamFinal.ToArray();
+                                totalread += length;
+                                final.Write(buffer, 0, (int) length);
                             }
+                            else if (totalread + read <= length)
+                            {
+                                totalread += read;
+                                final.Write(buffer, 0, read);
+                            }
+                            else if (totalread + read > length)
+                            {
+                                var leftToRead = length - totalread;
+                                totalread += leftToRead;
+                                final.Write(buffer, 0, (int) leftToRead);
+                            }
+
+                            //
+                            if (totalread >= length)
+                                break;
                         }
+                        return fileStreamFinal.ToArray();
                     }
                 }
             }
