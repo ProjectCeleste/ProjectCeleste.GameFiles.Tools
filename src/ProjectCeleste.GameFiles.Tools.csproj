@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netcoreapp2.1;net47</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net47</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <PackageLicenseUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicenseUrl>
@@ -33,7 +33,7 @@ Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created 
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
- <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' Or '$(TargetFramework)' == 'netcoreapp2.0' Or '$(TargetFramework)' == 'netstandard2.0' ">
+ <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0' Or '$(TargetFramework)' == 'netstandard2.0' ">
     <PackageReference Include="DotNetZip" Version="1.13.3" />
     <PackageReference Include="System.Drawing.Common" Version="4.5.1" />
   </ItemGroup>
