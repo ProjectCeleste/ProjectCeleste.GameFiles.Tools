@@ -147,8 +147,14 @@ test: off
 #---------------------------------#
 
 artifacts:
-  - path: 'src\bin\Release'
-    name: ProjectCeleste.GameFiles.Tools
+  - path: 'src\bin\Release\net47'
+    name: ProjectCeleste.GameFiles.Tools.Net47
+    type: zip
+  - path: 'src\bin\Release\netcoreapp2.0'
+    name: ProjectCeleste.GameFiles.Tools.NetCore2.0
+    type: zip
+  - path: 'src\bin\Release\netstandard2.0'
+    name: ProjectCeleste.GameFiles.Tools.NetStandard2.0
     type: zip
   - path: 'src\bin\Release\ProjectCeleste.GameFiles.Tools.%Build_Version%.nupkg'
     name: NuGet
@@ -167,7 +173,7 @@ deploy:
     description: '[View CHANGELOG.md](https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/CHANGELOG.md)'
     release: ProjectCeleste.GameFiles.Tools v$(Build_Version)
     auth_token: $(access_token)
-    artifact: ProjectCeleste.GameFiles.Tools, NuGet
+    artifact: ProjectCeleste.GameFiles.Tools.NetCore2.0, ProjectCeleste.GameFiles.Tools.NetStandard2.0, ProjectCeleste.GameFiles.Tools.Net47, NuGet
     draft: false
     prerelease: false
     force_update: true
