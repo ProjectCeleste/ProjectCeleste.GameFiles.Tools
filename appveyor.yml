@@ -18,7 +18,14 @@ skip_tags: false
 skip_non_tags: false
 
 # Skipping commits affecting specific files
-skip_commits:
+# skip_commits:
+#   files:
+#   - 'src\ProjectCeleste.GameFiles.Tools.csproj'
+#   - 'appveyor.yml'
+#   - '.gitattributes'
+#   - '.gitignore'
+#   - 'LICENSE'
+#   - 'README.md'
 
 # 
 pull_requests:
@@ -81,12 +88,6 @@ install:
 - git submodule update --init --recursive
 
 # enable patching of AssemblyInfo.* files
-assembly_info:
-  patch: true
-  file: 'ProjectCeleste.GameFiles.Tools\Properties\AssemblyInfo.cs'
-  assembly_version: '$(Build_Version)'
-  assembly_file_version: '$(Build_Version)'
-  assembly_informational_version: '$(Build_Version)'
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
