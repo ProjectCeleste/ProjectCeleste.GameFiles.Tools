@@ -163,7 +163,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 }
             }
         }
-        
+
         public static bool IsL33TZipFile(string fileName)
         {
             bool result;
@@ -206,7 +206,8 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             return result;
         }
 
-        public static void DoExtractL33TZipFile(string fileName, string outputFileName)
+        public static void DoExtractL33TZipFile(string fileName, string outputFileName,
+            IProgress<double> progress = null)
         {
             if (!File.Exists(fileName))
                 throw new FileNotFoundException($"File '{fileName}' not found!", fileName);
@@ -270,6 +271,8 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                             final.Write(buffer, 0, (int) leftToRead);
                                         }
 
+                                        progress?.Report((double) totalread / length);
+
                                         //
                                         if (totalread >= length)
                                             break;
@@ -289,7 +292,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             }
         }
 
-        public static byte[] DoExtractL33TZipFile(string fileName)
+        public static byte[] DoExtractL33TZipFile(string fileName, IProgress<double> progress = null)
         {
             if (!File.Exists(fileName))
                 throw new FileNotFoundException($"File '{fileName}' not found!", fileName);
@@ -298,23 +301,23 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             {
                 using (var reader = new BinaryReader(fileStream))
                 {
-                    return DoExtractL33TZipFile(reader);
+                    return DoExtractL33TZipFile(reader, progress);
                 }
             }
         }
 
-        public static byte[] DoExtractL33TZipFile(byte[] data)
+        public static byte[] DoExtractL33TZipFile(byte[] data, IProgress<double> progress = null)
         {
             using (var fileStream = new MemoryStream(data, false))
             {
                 using (var reader = new BinaryReader(fileStream))
                 {
-                    return DoExtractL33TZipFile(reader);
+                    return DoExtractL33TZipFile(reader, progress);
                 }
             }
         }
 
-        public static byte[] DoExtractL33TZipFile(BinaryReader reader)
+        public static byte[] DoExtractL33TZipFile(BinaryReader reader, IProgress<double> progress = null)
         {
             reader.BaseStream.Seek(0, SeekOrigin.Begin);
 
@@ -366,6 +369,8 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                 totalread += leftToRead;
                                 final.Write(buffer, 0, (int) leftToRead);
                             }
+
+                            progress?.Report((double) totalread / length);
 
                             //
                             if (totalread >= length)
