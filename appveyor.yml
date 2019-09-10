@@ -3,7 +3,7 @@
 #---------------------------------#
 
 # version format
-version: 2.0.0.{build}
+version: 0.0.0.{build}
 
 # branches to build
 #branches:
@@ -44,11 +44,11 @@ init:
     if ($env:APPVEYOR_REPO_TAG -eq "true")
     {
         $env:Build_Version = "$($env:APPVEYOR_REPO_TAG_NAME.Replace('v', ''))";
+        Update-AppveyorBuild -Version $env:Build_Version;
     }
     else
     {
         $env:Build_Version = "$($env:APPVEYOR_BUILD_VERSION)";
-        $env:APPVEYOR_REPO_TAG_NAME = "v$($env:APPVEYOR_BUILD_VERSION)";
     }
 - cmd: git config --global core.autocrlf true
 
@@ -85,7 +85,41 @@ environment:
 
 # scripts that run after cloning repository
 install:
-- git submodule update --init --recursive
+  # Git submodule init
+- cmd: git submodule update --init --recursive
+  # Update AppVeyor Build Version
+- ps: |
+    if ($env:APPVEYOR_REPO_TAG -eq "true")
+    {
+      # Set Version number
+      $env:Build_Version = "$($env:APPVEYOR_REPO_TAG_NAME.Replace('v', ''))"
+      # Update VersionManifest
+      $VersionManifestPath = Join-Path -Path $ENV:APPVEYOR_BUILD_FOLDER -ChildPath 'VersionManifest.md'
+      Set-Content -NoNewline -Path $VersionManifestPath -Value $env:Build_Version
+      # Update AppVeyor build
+      Update-AppveyorBuild -Version $env:Build_Version
+      # Update AppVeyor BuildNumber
+      # $headers = @{
+      #   "Authorization" = "Bearer $env:APPVEYOR_TOKEN"
+      #   "Content-type" = "application/json"
+      #   "Accept" = "application/json"
+      # }
+      # $build = @{
+      #   nextBuildNumber = 1
+      # }
+      # $json = $build | ConvertTo-Json
+      # Invoke-RestMethod -Method Put "https://ci.appveyor.com/api/projects/$env:APPVEYOR_ACCOUNT_NAME/$env:APPVEYOR_PROJECT_SLUG/settings/build-number" -Body $json -Headers $headers
+    }
+    else
+    {
+      # Update AppVeyor Build Version
+      $VersionManifestPath = Join-Path -Path $ENV:APPVEYOR_BUILD_FOLDER -ChildPath 'VersionManifest.md'
+      $ManifestContent = Get-Content -Path $VersionManifestPath -Raw
+      # Set Version number
+      $env:Build_Version = "$ManifestContent.$env:APPVEYOR_BUILD_NUMBER"
+      # update AppVeyor build
+      Update-AppveyorBuild -Version $env:Build_Version
+    }
 
 # enable patching of AssemblyInfo.* files
 dotnet_csproj:
@@ -205,6 +239,7 @@ before_deploy:
 - git config --global user.name "%github_user%"
 - git checkout -b Appveyor "%APPVEYOR_REPO_COMMIT%"
 - git add "src\ProjectCeleste.GameFiles.Tools.csproj"
+- git add "VersionManifest.md"
 - git commit -m "%APPVEYOR_REPO_TAG_NAME%"
 - git checkout "%APPVEYOR_REPO_BRANCH%"
 - git merge Appveyor
