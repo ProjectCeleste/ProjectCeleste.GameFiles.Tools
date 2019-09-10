@@ -214,7 +214,8 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             }
         }
 
-        public static async Task DoCreateL33TZipFile(string inputFileName, string outputFileName, CancellationToken ct = default(CancellationToken),
+        public static async Task DoCreateL33TZipFile(string inputFileName, string outputFileName,
+            CancellationToken ct = default(CancellationToken),
             IProgress<double> progress = null)
         {
             await Task.Run(() =>
@@ -241,19 +242,19 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                 //Write L33T Header & File Length
                                 if (length > int.MaxValue)
                                 {
-                                    char[] l33T = { 'l', '6', '6', 't' };
+                                    char[] l33T = {'l', '6', '6', 't'};
                                     final.Write(l33T);
                                     final.Write(length);
                                 }
                                 else
                                 {
-                                    char[] l33T = { 'l', '3', '3', 't' };
+                                    char[] l33T = {'l', '3', '3', 't'};
                                     final.Write(l33T);
                                     final.Write(Convert.ToInt32(length));
                                 }
 
                                 //Write Deflate specification (2 Byte)
-                                final.Write(new byte[] { 0x78, 0x9C });
+                                final.Write(new byte[] {0x78, 0x9C});
 
                                 //
                                 using (var a = new DeflateStream(fileStreamFinal, CompressionMode.Compress,
@@ -284,7 +285,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                             final.Write(buffer, 0, Convert.ToInt32(leftToRead));
                                         }
 
-                                        progress?.Report((double)totalread / length);
+                                        progress?.Report((double) totalread / length);
 
                                         //
                                         if (totalread >= length)
@@ -479,8 +480,9 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 }
             }
         }
-        
-        public static async Task DoExtractL33TZipFile(string fileName, string outputFileName, CancellationToken ct = default(CancellationToken),
+
+        public static async Task DoExtractL33TZipFile(string fileName, string outputFileName,
+            CancellationToken ct = default(CancellationToken),
             IProgress<double> progress = null)
         {
             await Task.Run(() =>
@@ -536,7 +538,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                             if (read > length)
                                             {
                                                 totalread += length;
-                                                final.Write(buffer, 0, (int)length);
+                                                final.Write(buffer, 0, (int) length);
                                             }
                                             else if (totalread + read <= length)
                                             {
@@ -547,10 +549,10 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                             {
                                                 var leftToRead = length - totalread;
                                                 totalread += leftToRead;
-                                                final.Write(buffer, 0, (int)leftToRead);
+                                                final.Write(buffer, 0, (int) leftToRead);
                                             }
 
-                                            progress?.Report((double)totalread / length);
+                                            progress?.Report((double) totalread / length);
 
                                             //
                                             if (totalread >= length)
