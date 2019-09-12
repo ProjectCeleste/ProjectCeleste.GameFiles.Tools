@@ -6,9 +6,9 @@ using System;
 
 //http://landman-code.blogspot.com/2009/02/c-superfasthash-and-murmurhash2.html
 
-namespace ProjectCeleste.GameFiles.Tools.Bar
+namespace ProjectCeleste.GameFiles.Tools.Misc
 {
-    public static class BarFileSuperFastHash
+    public static class SuperFastHashUtils
     {
         public static uint GetSuperFastHash(this byte[] dataToHash)
         {
