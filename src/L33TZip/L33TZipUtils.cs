@@ -285,7 +285,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                             final.Write(buffer, 0, Convert.ToInt32(leftToRead));
                                         }
 
-                                        progress?.Report((double) totalread / length);
+                                        progress?.Report((double) totalread / length * 100);
 
                                         //
                                         if (totalread >= length)
@@ -552,7 +552,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                                                 final.Write(buffer, 0, (int) leftToRead);
                                             }
 
-                                            progress?.Report((double) totalread / length);
+                                            progress?.Report((double) totalread / length * 100);
 
                                             //
                                             if (totalread >= length)
