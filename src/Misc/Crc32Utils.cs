@@ -38,7 +38,8 @@ namespace ProjectCeleste.GameFiles.Tools.Misc
             }
         }
 
-        public static async Task<uint> DoGetCrc32FromFile(string fileName, CancellationToken ct = default(CancellationToken),
+        public static async Task<uint> DoGetCrc32FromFile(string fileName,
+            CancellationToken ct = default(CancellationToken),
             IProgress<double> progress = null)
         {
             return await Task.Run(() =>
@@ -62,7 +63,7 @@ namespace ProjectCeleste.GameFiles.Tools.Misc
 
                         result = Crc32Algorithm.Append(result, buffer, 0, read);
 
-                        progress?.Report((double) totalread / length);
+                        progress?.Report((double) totalread / length * 100);
 
                         if (totalread >= length)
                             break;
