@@ -1,56 +1,56 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFrameworks>net47;netcoreapp2.1</TargetFrameworks>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-		<PackageLicenseUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicenseUrl>
-		<PackageProjectUrl>https://www.projectceleste.com</PackageProjectUrl>
-		<PackageIconUrl>https://raw.githubusercontent.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/master/icon.ico</PackageIconUrl>
-		<RepositoryUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<Description>GameFiles Tools For Age Of Empires Online Celeste Fan Project
+  <PropertyGroup>
+    <TargetFrameworks>net47;netcoreapp2.1</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PackageLicenseUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://www.projectceleste.com</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/master/icon.ico</PackageIconUrl>
+    <RepositoryUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Description>GameFiles Tools For Age Of Empires Online Celeste Fan Project
 
 Visit Us: https://www.projectceleste.com/
 
 Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created under Microsoft's Game Content Usage Rules using assets from Age of Empires Online, and it is not endorsed by or affiliated with Microsoft (See: https://www.xbox.com/en-us/developers/rules).</Description>
-		<PackageTags>projectceleste aoeo ageofempires</PackageTags>
-		<Authors>ProjectCeleste</Authors>
-		<Company />
-		<Product>ProjectCeleste.GameFiles.Tools</Product>
-		<Version>2.1.2</Version>
-		<AssemblyVersion>2.1.2</AssemblyVersion>
-		<FileVersion>2.1.2</FileVersion>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<IncludeSymbols>true</IncludeSymbols>
-		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
-		<LangVersion>latest</LangVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>DEBUG;TRACE;NETCORE2_1</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>DEBUG;TRACE;NET47</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;NETCORE2_1</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;NET47</DefineConstants>
-	</PropertyGroup>
-	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-		<PackageReference Include="System.Drawing.Common" Version="4.6.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01">
-			<PrivateAssets>all</PrivateAssets>
-			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-		</PackageReference>
-		<PackageReference Include="DotNetZip" Version="1.13.4" />
-		<PackageReference Include="Crc32.NET" Version="1.2.0" />
-	</ItemGroup>
+    <PackageTags>projectceleste aoeo ageofempires</PackageTags>
+    <Authors>ProjectCeleste</Authors>
+    <Company />
+    <Product>ProjectCeleste.GameFiles.Tools</Product>
+    <Version>2.2.1</Version>
+    <AssemblyVersion>2.2.1</AssemblyVersion>
+    <FileVersion>2.2.1</FileVersion>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE;NETCORE2_1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE;NET47</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;NETCORE2_1</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;NET47</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="DotNetZip" Version="1.13.4" />
+    <PackageReference Include="Crc32.NET" Version="1.2.0" />
+  </ItemGroup>
 </Project>
