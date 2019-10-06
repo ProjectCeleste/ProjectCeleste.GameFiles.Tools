@@ -27,23 +27,23 @@ Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created 
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>DEBUG;TRACE;NETCORE2_1</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>DEBUG;TRACE;NET47</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;NETCORE2_1</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;NET47</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-		<PackageReference Include="System.Drawing.Common" Version="4.5.1" />
+		<PackageReference Include="System.Drawing.Common" Version="4.6.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-19367-01">
