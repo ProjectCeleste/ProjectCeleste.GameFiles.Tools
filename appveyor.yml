@@ -184,7 +184,7 @@ artifacts:
   - path: 'src\bin\Release'
     name: ProjectCeleste.GameFiles.Tools
     type: zip
-  - path: 'src\bin\Release\ProjectCeleste.GameFiles.Tools.%Build_Version%.nupkg'
+  - path: 'src\bin\Release\ProjectCeleste.GameFiles.Tools.%Build_Version%.*nupkg'
     name: NuGet
     
 #---------------------------------#
@@ -201,7 +201,7 @@ deploy:
     description: '[View CHANGELOG.md](https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/CHANGELOG.md)'
     release: ProjectCeleste.GameFiles.Tools v$(Build_Version)
     auth_token: $(access_token)
-    artifact: ProjectCeleste.GameFiles.Tools, NuGet
+    artifact: ProjectCeleste.GameFiles.Tools
     draft: false
     prerelease: false
     force_update: true
