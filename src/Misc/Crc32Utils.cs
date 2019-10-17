@@ -54,6 +54,8 @@ namespace ProjectCeleste.GameFiles.Tools.Misc
                     int read;
                     var totalread = 0L;
                     var length = fs.Length;
+                    var lastProgress = 0d;
+
                     while ((read = fs.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         //
@@ -63,7 +65,13 @@ namespace ProjectCeleste.GameFiles.Tools.Misc
 
                         result = Crc32Algorithm.Append(result, buffer, 0, read);
 
-                        progress?.Report((double) totalread / length * 100);
+                        var newProgress = (double)totalread / length * 100;
+
+                        if (newProgress - lastProgress > 1)
+                        {
+                            progress?.Report(newProgress);
+                            lastProgress = newProgress;
+                        }
 
                         if (totalread >= length)
                             break;
