@@ -4,7 +4,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Ionic.Zlib;
+using System.IO.Compression;
 
 #endregion
 
@@ -57,7 +57,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             using (var sourceFileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
             using (var outputStream = new MemoryStream())
             using (var outputStreamWriter = new BinaryWriter(outputStream))
-            using (var compressedStream = new DeflateStream(outputStream, CompressionMode.Compress, CompressionLevel.BestCompression))
+            using (var compressedStream = new DeflateStream(outputStream, CompressionLevel.Optimal))
             {
                 WriteFileHeaders(outputStreamWriter, sourceFileStream.Length);
                 await WriteCompressedStreamAsync(compressedStream, sourceFileStream, outputStreamWriter);
@@ -74,7 +74,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 using (var fileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
                 using (var fileStreamFinal = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None))
                 using (var outputFileStreamWriter = new BinaryWriter(fileStreamFinal))
-                using (var compressedStream = new DeflateStream(fileStreamFinal, CompressionMode.Compress, CompressionLevel.BestCompression))
+                using (var compressedStream = new DeflateStream(fileStreamFinal, CompressionLevel.Optimal))
                 {
                     WriteFileHeaders(outputFileStreamWriter, fileStream.Length);
                     await WriteCompressedStreamAsync(compressedStream, fileStream, outputFileStreamWriter, ct, progress);
@@ -120,6 +120,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             var totalBytesRead = 0L;
             int bytesRead;
             var fileLength = sourceFileStream.Length;
+            var lastProgress = 0d;
 
             while ((bytesRead = await sourceFileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
@@ -142,7 +143,13 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                     final.Write(buffer, 0, Convert.ToInt32(leftToRead));
                 }
 
-                progress?.Report((double)totalBytesRead / fileLength * 100);
+                var newProgress = (double)totalBytesRead / fileLength * 100;
+
+                if (newProgress - lastProgress > 1)
+                {
+                    progress?.Report(newProgress);
+                    lastProgress = newProgress;
+                }
 
                 if (totalBytesRead >= fileLength)
                     break;
@@ -242,6 +249,8 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             var buffer = new byte[4096];
             int bytesRead;
             var totalBytesRead = 0L;
+            var lastProgress = 0d;
+
             while ((bytesRead = await compressedStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
                 ct.ThrowIfCancellationRequested();
@@ -263,7 +272,13 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                     targetStream.Write(buffer, 0, (int)leftToRead);
                 }
 
-                progress?.Report((double)totalBytesRead / fileLength * 100);
+                var newProgress = (double)totalBytesRead / fileLength * 100;
+
+                if (newProgress - lastProgress > 1)
+                {
+                    progress?.Report(newProgress);
+                    lastProgress = newProgress;
+                }
 
                 if (totalBytesRead >= fileLength)
                     break;
