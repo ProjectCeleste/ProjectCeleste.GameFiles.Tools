@@ -313,7 +313,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
 
         #region Obsolete non-async functions
 
-        [Obsolete("Use CreateL33TZipFileAsync instead")]
+        [Obsolete("Use CompressFileAsL33TZipAsync instead")]
         public static void CreateL33TZipFile(string inputFileName, string outputFileName)
         {
             CompressFileAsL33TZipAsync(inputFileName, outputFileName)
