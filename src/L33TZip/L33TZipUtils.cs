@@ -51,19 +51,33 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
 
         #endregion
 
-        #region Create
+        #region Compressing
+        public static async Task<byte[]> ReadL33TZipFileAsync(string inputFileName)
+        {
+            using (var sourceFileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
+            using (var outputStream = new MemoryStream())
+            using (var outputStreamWriter = new BinaryWriter(outputStream))
+            using (var compressedStream = new DeflateStream(outputStream, CompressionMode.Compress, CompressionLevel.BestCompression))
+            {
+                WriteFileHeaders(outputStreamWriter, sourceFileStream.Length);
+                await WriteCompressedStreamAsync(compressedStream, sourceFileStream, outputStreamWriter);
+                return outputStream.ToArray();
+            }
+        }
 
-        public static void CreateL33TZipFile(string inputFileName, string outputFileName)
+        public static async Task CompressFileAsL33TZipAsync(string inputFileName, string outputFileName,
+            CancellationToken ct = default,
+            IProgress<double> progress = null)
         {
             try
             {
                 using (var fileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
-                using (var outputFileStream = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None))
-                using (var outputFileStreamWriter = new BinaryWriter(outputFileStream))
-                using (var compressedStream = new DeflateStream(outputFileStream, CompressionMode.Compress, CompressionLevel.BestCompression))
+                using (var fileStreamFinal = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (var outputFileStreamWriter = new BinaryWriter(fileStreamFinal))
+                using (var compressedStream = new DeflateStream(fileStreamFinal, CompressionMode.Compress, CompressionLevel.BestCompression))
                 {
                     WriteFileHeaders(outputFileStreamWriter, fileStream.Length);
-                    WriteCompressedStream(compressedStream, fileStream, outputFileStreamWriter);
+                    await WriteCompressedStreamAsync(compressedStream, fileStream, outputFileStreamWriter, ct, progress);
                 }
             }
             catch (Exception)
@@ -74,20 +88,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 throw;
             }
         }
-
-        public static byte[] CreateL33TZip(string inputFileName)
-        {
-            using (var sourceFileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
-            using (var outputStream = new MemoryStream())
-            using (var outputStreamWriter = new BinaryWriter(outputStream))
-            using (var compressedStream = new DeflateStream(outputStream, CompressionMode.Compress, CompressionLevel.BestCompression))
-            {
-                WriteFileHeaders(outputStreamWriter, sourceFileStream.Length);
-                WriteCompressedStream(compressedStream, sourceFileStream, outputStreamWriter);
-                return outputStream.ToArray();
-            }
-        }
-
+        
         private static void WriteFileHeaders(BinaryWriter writer, long fileLength)
         {
             writer.BaseStream.Position = 0L;
@@ -108,7 +109,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             writer.Write(new byte[] { 0x78, 0x9C });
         }
 
-        private static void WriteCompressedStream(
+        private static async Task WriteCompressedStreamAsync(
             DeflateStream compressedStream,
             FileStream sourceFileStream,
             BinaryWriter final,
@@ -120,19 +121,19 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             int bytesRead;
             var fileLength = sourceFileStream.Length;
 
-            while ((bytesRead = sourceFileStream.Read(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = await sourceFileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
                 ct.ThrowIfCancellationRequested();
 
                 if (bytesRead > fileLength)
                 {
                     totalBytesRead += fileLength;
-                    compressedStream.Write(buffer, 0, Convert.ToInt32(fileLength));
+                    await compressedStream.WriteAsync(buffer, 0, Convert.ToInt32(fileLength));
                 }
                 else if (totalBytesRead + bytesRead <= fileLength)
                 {
                     totalBytesRead += bytesRead;
-                    compressedStream.Write(buffer, 0, bytesRead);
+                    await compressedStream.WriteAsync(buffer, 0, bytesRead);
                 }
                 else if (totalBytesRead + bytesRead > fileLength)
                 {
@@ -142,44 +143,17 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 }
 
                 progress?.Report((double)totalBytesRead / fileLength * 100);
-                
+
                 if (totalBytesRead >= fileLength)
                     break;
             }
         }
 
-        public static async Task DoCreateL33TZipFile(string inputFileName, string outputFileName,
-            CancellationToken ct = default,
-            IProgress<double> progress = null)
-        {
-            try
-            {
-                using (var fileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
-                using (var fileStreamFinal = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None))
-                using (var final = new BinaryWriter(fileStreamFinal))
-                {
-                    WriteFileHeaders(final, fileStream.Length);
-
-                    using (var a = new DeflateStream(fileStreamFinal, CompressionMode.Compress,
-                        CompressionLevel.BestCompression))
-                    {
-                        WriteCompressedStream(a, fileStream, final, ct, progress);
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                if (File.Exists(outputFileName))
-                    File.Delete(outputFileName);
-
-                throw;
-            }
-        }
-
         #endregion
 
-        #region Extract
-        public static void ExtractL33TZipFile(string inputFileName, string outputFileName)
+        #region Extracting
+
+        public static async Task ExtractL33TZipFileAsync(string inputFileName, string outputFileName)
         {
             try
             {
@@ -190,7 +164,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 using (var sourceStreamWriter = new BinaryWriter(sourceStream))
                 {
                     long fileLength = ReadFileLengthFromCompressedFile(fileStreamReader);
-                    ReadCompressedStream(compressedStream, sourceStreamWriter, fileLength);
+                    await ReadCompressedStreamAsync(compressedStream, sourceStreamWriter, fileLength);
                 }
             }
             catch
@@ -202,21 +176,21 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             }
         }
 
-        public static byte[] ExtractL33TZipFile(string zipFileName)
+        public static async Task<byte[]> ExtractL33TZipFileAsync(string zipFileName)
         {
             using (var fileStream = File.Open(zipFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var fileStreamReader = new BinaryReader(fileStream))
-                return ExtractL33TZipFile(fileStreamReader);
+                return await ExtractL33TZipStreamAsync(fileStreamReader);
         }
 
-        public static byte[] ExtractL33TZipFile(byte[] zipData)
+        public static async Task<byte[]> ExtractL33TZippedBytesAsync(byte[] zipData)
         {
             using (var fileStream = new MemoryStream(zipData, false))
             using (var fileStreamReader = new BinaryReader(fileStream))
-                return ExtractL33TZipFile(fileStreamReader);
+                return await ExtractL33TZipStreamAsync(fileStreamReader);
         }
 
-        public static byte[] ExtractL33TZipFile(BinaryReader zipReader)
+        public static async Task<byte[]> ExtractL33TZipStreamAsync(BinaryReader zipReader)
         {
             zipReader.BaseStream.Seek(0, SeekOrigin.Begin);
 
@@ -226,13 +200,13 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             using (var outputMemoryStream = new MemoryStream())
             using (var outputWriter = new BinaryWriter(outputMemoryStream))
             {
-                ReadCompressedStream(compressedStream, outputWriter, fileLength);
+                await ReadCompressedStreamAsync(compressedStream, outputWriter, fileLength);
 
                 return outputMemoryStream.ToArray();
             }
         }
 
-        public static async Task DoExtractL33TZipFile(string fileName, string outputFileName, // Not suffixed async
+        public static async Task ExtractL33TZipFileAsync(string fileName, string outputFileName,
             CancellationToken ct = default,
             IProgress<double> progress = null)
         {
@@ -246,7 +220,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
                 {
                     long length = ReadFileLengthFromCompressedFile(fileStreamReader);
                     ct.ThrowIfCancellationRequested();
-                    ReadCompressedStream(compressedStream, outputStreamWriter, length, ct, progress);
+                    await ReadCompressedStreamAsync(compressedStream, outputStreamWriter, length, ct, progress);
                 }
             }
             catch (Exception)
@@ -258,7 +232,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             }
         }
 
-        private static void ReadCompressedStream(
+        private static async Task ReadCompressedStreamAsync(
             DeflateStream compressedStream,
             BinaryWriter targetStream,
             long fileLength,
@@ -268,7 +242,7 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             var buffer = new byte[4096];
             int bytesRead;
             var totalBytesRead = 0L;
-            while ((bytesRead = compressedStream.Read(buffer, 0, buffer.Length)) > 0)
+            while ((bytesRead = await compressedStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
                 ct.ThrowIfCancellationRequested();
 
@@ -318,6 +292,74 @@ namespace ProjectCeleste.GameFiles.Tools.L33TZip
             }
 
             return length;
+        }
+
+        #endregion
+
+        #region Obsolete non-async functions
+
+        [Obsolete("Use CreateL33TZipFileAsync instead")]
+        public static void CreateL33TZipFile(string inputFileName, string outputFileName)
+        {
+            CompressFileAsL33TZipAsync(inputFileName, outputFileName)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use CreateL33TZipAsync instead")]
+        public static byte[] CreateL33TZip(string inputFileName)
+        {
+            return ReadL33TZipFileAsync(inputFileName)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use CompressFileAsL33TZipAsync instead")]
+        public static Task DoCreateL33TZipFile(string inputFileName, string outputFileName,
+            CancellationToken ct = default,
+            IProgress<double> progress = null)
+        {
+            return CompressFileAsL33TZipAsync(inputFileName, outputFileName, ct, progress);
+        }
+
+        [Obsolete("Use ExtractL33TZipFileAsync instead")]
+        public static void ExtractL33TZipFile(string inputFileName, string outputFileName)
+        {
+            ExtractL33TZipFileAsync(inputFileName, outputFileName)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use ExtractL33TZipFileAsync instead")]
+        public static byte[] ExtractL33TZipFile(string zipFileName)
+        {
+            return ExtractL33TZipFileAsync(zipFileName)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use ExtractL33TZippedBytesAsync instead")]
+        public static byte[] ExtractL33TZipFile(byte[] zipData)
+        {
+            return ExtractL33TZippedBytesAsync(zipData)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use ExtractL33TZipStreamAsync instead")]
+        public static byte[] ExtractL33TZipFile(BinaryReader zipReader)
+        {
+            return ExtractL33TZipStreamAsync(zipReader)
+                .GetAwaiter()
+                .GetResult();
+        }
+
+        [Obsolete("Use ExtractL33TZipFileAsync instead")]
+        public static Task DoExtractL33TZipFile(string fileName, string outputFileName,
+            CancellationToken ct = default,
+            IProgress<double> progress = null)
+        {
+            return ExtractL33TZipFileAsync(fileName, outputFileName, ct, progress);
         }
 
         #endregion
