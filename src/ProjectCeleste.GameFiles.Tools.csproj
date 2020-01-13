@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net47;netcoreapp2.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <PackageLicenseUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://www.projectceleste.com</PackageProjectUrl>
-    <PackageIconUrl>https://raw.githubusercontent.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/master/icon.ico</PackageIconUrl>
+    <PackageLicense>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicense>
+    <PackageProject>https://www.projectceleste.com</PackageProject>
+    <PackageIcon>icon.ico</PackageIcon>
     <RepositoryUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <Description>GameFiles Tools For Age Of Empires Online Celeste Fan Project
@@ -25,28 +25,10 @@ Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created 
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>DEBUG;TRACE;NETCORE2_1</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>DEBUG;TRACE;NET47</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;NETCORE2_1</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net47' And '$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>TRACE;NET47</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1' ">
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+  <ItemGroup>
+    <None Include="icon.ico" Pack="true" PackagePath=""/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
@@ -54,5 +36,6 @@ Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created 
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 </Project>
