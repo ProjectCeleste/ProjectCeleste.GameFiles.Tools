@@ -1,15 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PackageId>ProjectCeleste.GameFiles.Tools</PackageId>
     <PackageLicense>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools/blob/master/LICENSE</PackageLicense>
     <PackageProject>https://www.projectceleste.com</PackageProject>
-    <PackageIcon>icon.ico</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/ProjectCeleste/ProjectCeleste.GameFiles.Tools</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Description>GameFiles Tools For Age Of Empires Online Celeste Fan Project
+    <Description>ProjectCeleste.GameFiles.Tools For Age Of Empires Online Celeste Fan Project
 
 Visit Us: https://www.projectceleste.com/
 
@@ -21,14 +22,16 @@ Age of Empires Online © Microsoft Corporation. Celeste Fan Project was created 
     <Version>2.2.6</Version>
     <AssemblyVersion>2.2.6</AssemblyVersion>
     <FileVersion>2.2.6</FileVersion>
+    <InformationalVersion>v2.2.6</InformationalVersion>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Copyright />
   </PropertyGroup>
   <ItemGroup>
-    <None Include="icon.ico" Pack="true" PackagePath="" />
+    <None Include="icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
