@@ -17,16 +17,9 @@ skip_tags: false
 # Start builds on tags only
 skip_non_tags: false
 
-# Skipping commits affecting specific files
-# skip_commits:
-#   files:
-#   - 'src\ProjectCeleste.GameFiles.Tools.csproj'
-#   - 'appveyor.yml'
-#   - '.gitattributes'
-#   - '.gitignore'
-#   - 'LICENSE'
-#   - 'README.md'
-#   - 'VersionManifest.md'
+# Skipping commits with specific message
+skip_commits:
+  message: /\[ci deploy\]/
 
 # 
 pull_requests:
@@ -122,6 +115,7 @@ nuget:
 
 # environment variables
 environment:
+  APPVEYOR_IGNORE_COMMIT_FILTERING_ON_TAG: true
   access_token:
     secure: FCfA6NOUpYu23Acwkb5xfB0fI9iOtw7t7maO76F/0Qu0XTMAXnjLa33b8LUTahEY
   github_email:
@@ -157,9 +151,18 @@ install:
       # Set Version number
       $env:Celeste_Version = "$ManifestContent"
       $env:Celeste_AVersion = "$ManifestContent"
-      $env:Celeste_IVersion = "v$ManifestContent-$env:APPVEYOR_BUILD_NUMBER"
       # update AppVeyor build
-      Update-AppveyorBuild -Version "$ManifestContent-$env:APPVEYOR_BUILD_NUMBER"
+      if ($env:APPVEYOR_PULL_REQUEST_NUMBER)
+      {
+        $ShortSHA = $env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT.Substring(0,7)
+        Update-AppveyorBuild -Version "$ManifestContent-$env:APPVEYOR_BUILD_NUMBER--PR$env:APPVEYOR_PULL_REQUEST_NUMBER-$ShortSHA"
+        $env:Celeste_IVersion = "v$ManifestContent-$env:APPVEYOR_BUILD_NUMBER--PR$env:APPVEYOR_PULL_REQUEST_NUMBER-$ShortSHA"
+      }
+      else
+      {
+        Update-AppveyorBuild -Version "$ManifestContent-$env:APPVEYOR_BUILD_NUMBER"
+        $env:Celeste_IVersion = "v$ManifestContent-$env:APPVEYOR_BUILD_NUMBER"
+      }
     }
 
 # enable patching of AssemblyInfo.* files
