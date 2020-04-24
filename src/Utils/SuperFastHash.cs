@@ -6,7 +6,7 @@ using System;
 
 //http://landman-code.blogspot.com/2009/02/c-superfasthash-and-murmurhash2.html
 
-namespace ProjectCeleste.GameFiles.Tools.Misc
+namespace ProjectCeleste.GameFiles.Tools.Utils
 {
     public static class SuperFastHashUtils
     {
@@ -52,8 +52,6 @@ namespace ProjectCeleste.GameFiles.Tools.Misc
                     hash += hash >> 1;
                     break;
                 // ReSharper disable once RedundantEmptySwitchSection
-                default:
-                    break;
             }
 
             /* Force "avalanching" of final 127 bits */
