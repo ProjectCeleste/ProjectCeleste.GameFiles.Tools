@@ -3,6 +3,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Overby.Extensions.AsyncBinaryReaderWriter;
@@ -36,7 +37,7 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
             var oldPosition = stream.Position;
             try
             {
-                using var reader = new AsyncBinaryReader(stream);
+                using var reader = new AsyncBinaryReader(stream, new UTF8Encoding(), true);
                 var fileHeader = new string(await reader.ReadCharsAsync(4, ct));
                 switch (fileHeader.ToLower())
                 {
@@ -79,7 +80,7 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
 
         public static bool IsL33TZip(Stream stream)
         {
-                using var reader = new BinaryReader(stream);
+                using var reader = new BinaryReader(stream, new UTF8Encoding(), true);
                 return IsL33TZip(reader);
         }
 
@@ -269,24 +270,22 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
         {
             //Get extracted content length
             long fileLength;
-            using (var reader = new AsyncBinaryReader(inputStream))
+            using (var reader = new AsyncBinaryReader(inputStream, new UTF8Encoding(), true))
             {
                 var fileHeader = new string(await reader.ReadCharsAsync(4, ct));
                 switch (fileHeader.ToLower())
                 {
                     case L33THeader:
                         fileLength = await reader.ReadInt32Async(ct);
-                        //Skip deflate specification (2 Byte)
-                        reader.BaseStream.Position += 2;
                         break;
                     case L66THeader:
                         fileLength = await reader.ReadInt64Async(ct);
-                        //Skip deflate specification (2 Byte)
-                        reader.BaseStream.Position += 2;
                         break;
                     default:
                         throw new InvalidOperationException($"Header '{fileHeader}' is not recognized as a valid type");
                 }
+				//Skip deflate specification (2 Byte)
+				reader.BaseStream.Position += 2;
             }
 
             //Extract content
@@ -376,7 +375,7 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
         {
             //Get extracted content length
             long fileLength;
-            using (var reader = new BinaryReader(inputStream))
+            using (var reader = new BinaryReader(inputStream, new UTF8Encoding(), true))
             {
                 var fileHeader = new string(reader.ReadChars(4));
                 switch (fileHeader.ToLower())
