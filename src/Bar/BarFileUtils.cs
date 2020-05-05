@@ -351,16 +351,16 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                         newFilesInfos.Add(file);
                     }
                 }
-                else if (xmlToXmb &&
-                         string.Equals(rootDir.Replace("\\", "").Replace("//", ""), "data", StringComparison.OrdinalIgnoreCase) &&
-                         (file.FullName.EndsWith(".quest", StringComparison.OrdinalIgnoreCase) ||
-                          (file.FullName.IndexOf("civilizations\\civ_", StringComparison.OrdinalIgnoreCase) >= 0 && file.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)) ||
+                else if (xmlToXmb && file.FullName.EndsWith(".quest", StringComparison.OrdinalIgnoreCase) ||
                           file.FullName.EndsWith(".region", StringComparison.OrdinalIgnoreCase) ||
                           file.FullName.EndsWith(".tactics", StringComparison.OrdinalIgnoreCase) ||
                           file.FullName.EndsWith(".character", StringComparison.OrdinalIgnoreCase) ||
+                          file.FullName.EndsWith(".dataset", StringComparison.OrdinalIgnoreCase) ||
                           file.FullName.EndsWith(".empire", StringComparison.OrdinalIgnoreCase) ||
                           file.FullName.EndsWith(".spawneritem", StringComparison.OrdinalIgnoreCase) ||
-                          file.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)))
+                          file.FullName.EndsWith(".groupingset", StringComparison.OrdinalIgnoreCase) ||
+                          file.FullName.EndsWith(".set", StringComparison.OrdinalIgnoreCase) ||
+                          file.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                 {
                     if (XmbFile.IsXmlFile(file.FullName))
                     {
