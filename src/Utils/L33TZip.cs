@@ -117,18 +117,19 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
         #region Compressing
 
         public static async Task CompressFileAsL33TZipAsync(string inputFileName, string outputFileName,
-            IProgress<double> progress = null,
-            CancellationToken ct = default)
+            CancellationToken ct = default,
+            IProgress<double> progress = null)
         {
             try
             {
-                using var inputFileSourceStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None);
-                using var outputFileSourceStream = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None);
-                using var asyncOutputFileSourceStream = new AsyncBinaryWriter(outputFileSourceStream);
-                using var compressedOutputFileStream = new DeflateStream(outputFileSourceStream, CompressionLevel.Optimal);
-
-                await WriteFileHeadersAsync(asyncOutputFileSourceStream, inputFileSourceStream.Length, ct);
-                await CompressFileAsL33TZipAsync(inputFileSourceStream, compressedOutputFileStream, progress, ct);
+                using (var fileStream = File.Open(inputFileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (var fileStreamFinal = File.Open(outputFileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (var outputFileStreamWriter = new BinaryWriter(fileStreamFinal))
+                using (var compressedStream = new DeflateStream(fileStreamFinal, CompressionLevel.Optimal))
+                {
+                    WriteFileHeaders(outputFileStreamWriter, fileStream.Length);
+                    await WriteCompressedStreamAsync(compressedStream, fileStream, outputFileStreamWriter, ct, progress);
+                }
             }
             catch (Exception)
             {
@@ -139,57 +140,58 @@ namespace ProjectCeleste.GameFiles.Tools.Utils
             }
         }
 
-        private static async Task WriteFileHeadersAsync(AsyncBinaryWriter writer, long fileLength, CancellationToken ct)
+        private static void WriteFileHeaders(BinaryWriter writer, long fileLength)
         {
+            writer.BaseStream.Position = 0L;
+
             //Write L33T Header & File Length
             if (fileLength > int.MaxValue)
             {
-                await writer.WriteAsync(L66THeader.ToCharArray(), ct);
-                await writer.WriteAsync(fileLength, ct);
+                writer.Write(L66THeader.ToCharArray());
+                writer.Write(fileLength);
             }
             else
             {
-                await writer.WriteAsync(L33THeader.ToCharArray(), ct);
-                await writer.WriteAsync(Convert.ToInt32(fileLength), ct);
+                writer.Write(L33THeader.ToCharArray());
+                writer.Write(Convert.ToInt32(fileLength));
             }
 
             //Write Deflate specification (2 Byte)
-            await writer.WriteAsync(new byte[] { 0x78, 0x9C }, ct);
+            writer.Write(new byte[] { 0x78, 0x9C });
         }
 
-        private static async Task CompressFileAsL33TZipAsync(
-             Stream inputStream,
-             Stream outputStream,
-             IProgress<double> progress = null,
-             CancellationToken ct = default)
+        private static async Task WriteCompressedStreamAsync(
+            DeflateStream compressedStream,
+            FileStream sourceFileStream,
+            BinaryWriter final,
+            CancellationToken ct = default,
+            IProgress<double> progress = null)
         {
-            //
-            var fileLength = inputStream.Length;
-
-            //Write Content
-            var buffer = new byte[BufferSize];
+            var buffer = new byte[4096];
             var totalBytesRead = 0L;
-            var lastProgress = 0d;
             int bytesRead;
-            while ((bytesRead = await inputStream.ReadAsync(buffer, 0, buffer.Length, ct)) > 0)
+            var fileLength = sourceFileStream.Length;
+            var lastProgress = 0d;
+
+            while ((bytesRead = await sourceFileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
                 ct.ThrowIfCancellationRequested();
 
                 if (bytesRead > fileLength)
                 {
                     totalBytesRead += fileLength;
-                    await outputStream.WriteAsync(buffer, 0, Convert.ToInt32(fileLength), ct);
+                    await compressedStream.WriteAsync(buffer, 0, Convert.ToInt32(fileLength));
                 }
                 else if (totalBytesRead + bytesRead <= fileLength)
                 {
                     totalBytesRead += bytesRead;
-                    await outputStream.WriteAsync(buffer, 0, bytesRead, ct);
+                    await compressedStream.WriteAsync(buffer, 0, bytesRead);
                 }
                 else if (totalBytesRead + bytesRead > fileLength)
                 {
                     var leftToRead = fileLength - totalBytesRead;
                     totalBytesRead += leftToRead;
-                    await outputStream.WriteAsync(buffer, 0, Convert.ToInt32(leftToRead), ct);
+                    final.Write(buffer, 0, Convert.ToInt32(leftToRead));
                 }
 
                 var newProgress = (double)totalBytesRead / fileLength * 100;
