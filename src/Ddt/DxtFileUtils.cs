@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿#region Using directives
+
+using System.Collections.Generic;
 using System.IO;
+
+#endregion
 
 #region License
 
@@ -16,17 +20,19 @@ using System.IO;
 
 namespace ProjectCeleste.GameFiles.Tools.Ddt
 {
-    public static class DxtFileUtils
+    internal static class DxtFileUtils
     {
-        #region Public Static Methods
+        #region Internal Static Methods
 
-        public static byte[] DecompressDxt1(byte[] imageData, int width, int height)
+        internal static byte[] DecompressDxt1(byte[] imageData, int width, int height)
         {
-            using var imageStream = new MemoryStream(imageData);
-            return DecompressDxt1(imageStream, width, height);
+            using (var imageStream = new MemoryStream(imageData))
+            {
+                return DecompressDxt1(imageStream, width, height);
+            }
         }
 
-        public static byte[] DecompressDxt1(Stream imageStream, int width, int height)
+        internal static byte[] DecompressDxt1(Stream imageStream, int width, int height)
         {
             var imageData = new byte[width * height * 4];
 
@@ -43,13 +49,15 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             return imageData;
         }
 
-        public static byte[] DecompressDxt3(byte[] imageData, int width, int height)
+        internal static byte[] DecompressDxt3(byte[] imageData, int width, int height)
         {
-            using var imageStream = new MemoryStream(imageData);
-            return DecompressDxt3(imageStream, width, height);
+            using (var imageStream = new MemoryStream(imageData))
+            {
+                return DecompressDxt3(imageStream, width, height);
+            }
         }
 
-        public static byte[] DecompressDxt3(Stream imageStream, int width, int height)
+        internal static byte[] DecompressDxt3(Stream imageStream, int width, int height)
         {
             var imageData = new byte[width * height * 4];
 
@@ -66,13 +74,15 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             return imageData;
         }
 
-        public static byte[] DecompressDxt5(byte[] imageData, int width, int height)
+        internal static byte[] DecompressDxt5(byte[] imageData, int width, int height)
         {
-            using var imageStream = new MemoryStream(imageData);
-            return DecompressDxt5(imageStream, width, height);
+            using (var imageStream = new MemoryStream(imageData))
+            {
+                return DecompressDxt5(imageStream, width, height);
+            }
         }
 
-        public static byte[] DecompressDxt5(Stream imageStream, int width, int height)
+        internal static byte[] DecompressDxt5(Stream imageStream, int width, int height)
         {
             var imageData = new byte[width * height * 4];
 
@@ -99,8 +109,10 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             var c0 = imageReader.ReadUInt16();
             var c1 = imageReader.ReadUInt16();
 
-            ConvertRgb565ToRgb888(c0, out var r0, out var g0, out var b0);
-            ConvertRgb565ToRgb888(c1, out var r1, out var g1, out var b1);
+            byte r0, g0, b0;
+            byte r1, g1, b1;
+            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
+            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
 
             var lookupTable = imageReader.ReadUInt32();
 
@@ -133,6 +145,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
                             g = (byte) ((g0 + 2 * g1) / 3);
                             b = (byte) ((b0 + 2 * b1) / 3);
                             break;
+                        default:
+                            break;
                     }
                 else
                     switch (index)
@@ -157,6 +171,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
                             g = 0;
                             b = 0;
                             a = 0;
+                            break;
+                        default:
                             break;
                     }
 
@@ -186,8 +202,10 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             var c0 = imageReader.ReadUInt16();
             var c1 = imageReader.ReadUInt16();
 
-            ConvertRgb565ToRgb888(c0, out var r0, out var g0, out var b0);
-            ConvertRgb565ToRgb888(c1, out var r1, out var g1, out var b1);
+            byte r0, g0, b0;
+            byte r1, g1, b1;
+            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
+            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
 
             var lookupTable = imageReader.ReadUInt32();
 
@@ -249,6 +267,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
                     case 15:
                         a = (byte) ((a7 & 0xF0) | ((a7 & 0xF0) >> 4));
                         break;
+                    default:
+                        break;
                 }
                 ++alphaIndex;
 
@@ -273,6 +293,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
                         r = (byte) ((r0 + 2 * r1) / 3);
                         g = (byte) ((g0 + 2 * g1) / 3);
                         b = (byte) ((b0 + 2 * b1) / 3);
+                        break;
+                    default:
                         break;
                 }
 
@@ -303,8 +325,10 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             var c0 = imageReader.ReadUInt16();
             var c1 = imageReader.ReadUInt16();
 
-            ConvertRgb565ToRgb888(c0, out var r0, out var g0, out var b0);
-            ConvertRgb565ToRgb888(c1, out var r1, out var g1, out var b1);
+            byte r0, g0, b0;
+            byte r1, g1, b1;
+            ConvertRgb565ToRgb888(c0, out r0, out g0, out b0);
+            ConvertRgb565ToRgb888(c1, out r1, out g1, out b1);
 
             var lookupTable = imageReader.ReadUInt32();
 
@@ -363,6 +387,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
                         r = (byte) ((r0 + 2 * r1) / 3);
                         g = (byte) ((g0 + 2 * g1) / 3);
                         b = (byte) ((b0 + 2 * b1) / 3);
+                        break;
+                    default:
                         break;
                 }
 

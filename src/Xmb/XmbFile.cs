@@ -1,209 +1,129 @@
-﻿using System;
+﻿#region Using directives
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml;
-using System.Xml.Linq;
+
+#endregion
 
 namespace ProjectCeleste.GameFiles.Tools.Xmb
 {
-    public sealed class XmbFile
+    public class XmbAttribute
     {
-        private XmbFile(IEnumerable<string> elementNames, IEnumerable<string> attributeNames,
-            XmbElement root)
+        public XmbAttribute(string name, string value)
         {
-            ElementNames = elementNames as List<string> ?? elementNames.ToList();
-            AttributeNames = attributeNames as List<string> ?? attributeNames.ToList();
-            RootNode = root;
+            Name = name;
+            Value = value;
         }
 
-        public IReadOnlyList<string> ElementNames { get; }
+        public string Name { get; }
 
-        public IReadOnlyList<string> AttributeNames { get; }
+        public string Value { get; }
+    }
 
-        public XmbElement RootNode { get; }
-
-        public static XmbFile Deserialize(BinaryReader reader)
+    public class XmbElement
+    {
+        public XmbElement(int unk0, string head, string name, int lineNum, string text,
+            IReadOnlyList<XmbElement> childs, IReadOnlyList<XmbAttribute> attrs)
         {
-            //Header
-            var identifier1 = new string(reader.ReadChars(2));
-            if (identifier1 != "X1")
-                throw new InvalidDataException("'X1' not found - Invalid XMB file!");
+            Unk0 = unk0;
+            Head = head;
+            Name = name;
+            LineNum = lineNum;
+            Text = text;
+            Childs = childs;
+            Attrs = attrs;
+        }
 
-            reader.ReadInt32(); //DataLength;
+        public int Unk0 { get; }
 
-            //Body
-            var identifierRoot = new string(reader.ReadChars(2));
-            if (identifierRoot != "XR")
-                throw new InvalidDataException("'XR' not found - Invalid XMB file!");
+        public string Head { get; }
+
+        public string Name { get; }
+
+        public int LineNum { get; }
+
+        public string Text { get; }
+
+        public IReadOnlyList<XmbElement> Childs { get; }
+
+        public IReadOnlyList<XmbAttribute> Attrs { get; }
+
+        public static XmbElement DeserializeXmbElement(BinaryReader reader, IReadOnlyList<string> elementNames,
+            IReadOnlyList<string> attrNames)
+        {
+            var head = new string(reader.ReadChars(2));
+            if (head != "XN")
+                throw new Exception("Invalid Node (head does not equal XN)");
 
             var unk0 = reader.ReadInt32();
-            if (unk0 != 4)
-                throw new InvalidDataException("'4' not found  - Invalid XMB file!");
-
-            var gameId= reader.ReadInt32(); //7=AOM, 8=AOE3/AOEO
-            if (gameId != 8)
-                throw new InvalidDataException("'8' not found  - Invalid XMB file!");
-
-            var elementCount = reader.ReadInt32();
-            var elementNames = new List<string>();
-            for (var index = 0; index < elementCount; ++index)
+            var txtLength = reader.ReadUInt32();
+            var text = Encoding.Unicode.GetString(reader.ReadBytes((int) txtLength * 2));
+            var name = elementNames[reader.ReadInt32()];
+            var lineNum = reader.ReadInt32();
+            var attrs = new List<XmbAttribute>();
+            var num1 = reader.ReadInt32();
+            for (var index1 = 0; num1 > index1; ++index1)
             {
-                var strLength = reader.ReadUInt32();
-                var str = Encoding.Unicode.GetString(reader.ReadBytes((int) strLength * 2));
-
-                elementNames.Add(str);
+                var index2 = reader.ReadInt32();
+                var valueLength = reader.ReadUInt32();
+                var value = Encoding.Unicode.GetString(reader.ReadBytes((int) valueLength * 2));
+                var xmbAttribute = new XmbAttribute(attrNames[index2], value);
+                attrs.Add(xmbAttribute);
+            }
+            var childs = new List<XmbElement>();
+            var num2 = reader.ReadInt32();
+            for (var index = 0; num2 > index; ++index)
+            {
+                var node = DeserializeXmbElement(reader, elementNames, attrNames);
+                childs.Add(node);
             }
 
-            var attributeCount = reader.ReadInt32();
-            var attributeNames = new List<string>();
-            for (var index = 0; index < attributeCount; ++index)
-            {
-                var strLength = reader.ReadUInt32();
-                var str = Encoding.Unicode.GetString(reader.ReadBytes((int) strLength * 2));
+            return new XmbElement(unk0, head, name, lineNum, text, childs, attrs);
+        }
 
-                attributeNames.Add(str);
+        public string ToXml(string indent = "")
+        {
+            var str1 = "\r\n" + indent + "<" + Name;
+            foreach (var t in Attrs)
+            {
+                var name = t.Name;
+                var value = t.Value.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+                    .Replace("\"", "&quot;").Replace("'", "&apos;");
+                str1 = str1 + " " + name + "=\"" + value + "\"";
             }
-
-            var xmbElement = XmbElement.Deserialize(reader);
-
-            return new XmbFile(elementNames, attributeNames, xmbElement);
-        }
-
-        public static XmbFile Deserialize(XDocument xmbDocument)
-        {
-            IList<string> elementNames = new List<string>();
-            IList<string> attributeNames = new List<string>();
-            var rootNode = XmbElement.Deserialize(xmbDocument.Root, ref elementNames, ref attributeNames);
-            return new XmbFile(elementNames, attributeNames, rootNode);
-        }
-
-        public byte[] ToByteArray()
-        {
-            //BODY
-            byte[] body;
-            using (var ms = new MemoryStream())
+            string str2;
+            if (Text.Length > 0)
             {
-                using (var bw = new BinaryWriter(ms))
+                var text = Text.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;")
+                    .Replace("\"", "&quot;").Replace("'", "&apos;");
+
+                if (Childs.Count > 0)
                 {
-                    bw.Write("XR".ToCharArray());
-                    bw.Write(4);
-                    bw.Write(8);
-                    bw.Write(ElementNames.Count);
-                    foreach (var elementName in ElementNames)
-                    {
-                        bw.Write((uint) elementName.Length);
-                        bw.Write(Encoding.Unicode.GetBytes(elementName));
-                    }
-
-                    bw.Write(AttributeNames.Count);
-                    foreach (var attributeName in AttributeNames)
-                    {
-                        bw.Write((uint) attributeName.Length);
-                        bw.Write(Encoding.Unicode.GetBytes(attributeName));
-                    }
-
-                    bw.Write(RootNode.ToByteArray());
+                    var str3 = str1 + ">" + "\r\n" + indent + "\t" + text;
+                    var indent1 = indent + "\t";
+                    str3 = Childs.Aggregate(str3, (current, t) => current + t.ToXml(indent1));
+                    str2 = str3 + "\r\n" + indent + "</" + Name + ">";
                 }
-
-                body = ms.ToArray();
-            }
-
-            //Header
-            byte[] header;
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
+                else
                 {
-                    bw.Write("X1".ToCharArray());
-                    bw.Write(body.Length);
+                    str2 = str1 + ">" + text + "</" + Name + ">";
                 }
-
-                header = ms.ToArray();
             }
-
-            //Final
-            using (var ms = new MemoryStream())
+            else if (Childs.Count > 0)
             {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(header);
-                    bw.Write(body);
-                }
-
-                return ms.ToArray();
+                var str3 = str1 + ">";
+                var indent1 = indent + "\t";
+                str3 = Childs.Aggregate(str3, (current, t) => current + t.ToXml(indent1));
+                str2 = str3 + "\r\n" + indent + "</" + Name + ">";
             }
-        }
-
-        public static bool IsXmlFile(string fileName)
-        {
-            try
+            else
             {
-                new XmlDocument().Load(fileName);
-                return true;
+                str2 = str1 + "/>";
             }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
-        public static bool IsXmbFile(string fileName)
-        {
-            using var fileStream = File.OpenRead(fileName);
-            return IsXmbFile(fileStream);
-        }
-
-        public static bool IsXmbFile(byte[] data)
-        {
-            using var memoryStream = new MemoryStream(data, false);
-            return IsXmbFile(memoryStream);
-        }
-
-        public static bool IsXmbFile(Stream stream)
-        {
-            using var reader = new BinaryReader(stream);
-            return IsXmbFile(reader);
-        }
-
-        public static bool IsXmbFile(BinaryReader reader)
-        {
-            var oldPosition = reader.BaseStream.Position;
-            try
-            {
-                //Header
-                var identifier1 = new string(reader.ReadChars(2));
-                if (identifier1 != "X1")
-                    throw new InvalidDataException("'X1' not found - Invalid XMB file!");
-
-                reader.ReadInt32(); //DataLength;
-
-                //Body
-                var identifierRoot = new string(reader.ReadChars(2));
-                if (identifierRoot != "XR")
-                    throw new InvalidDataException("'XR' not found - Invalid XMB file!");
-
-                var unk0 = reader.ReadInt32();
-                if (unk0 != 4)
-                    throw new InvalidDataException("'4' not found  - Invalid XMB file!");
-
-                var gameId = reader.ReadInt32(); //7=AOM, 8=AOE3/AOEO
-                if (gameId != 8)
-                    throw new InvalidDataException("'8' not found  - Invalid XMB file!");
-
-                return true;
-            }
-#pragma warning disable CA1031 // Do not catch general exception types
-            catch (Exception)
-            {
-                return false;
-            }
-#pragma warning restore CA1031 // Do not catch general exception types
-            finally
-            {
-                reader.BaseStream.Position = oldPosition;
-            }
+            return str2;
         }
     }
 }
