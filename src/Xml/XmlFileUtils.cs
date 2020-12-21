@@ -30,105 +30,24 @@ namespace ProjectCeleste.GameFiles.Tools.Xml
         {
             if (string.IsNullOrWhiteSpace(xml))
                 throw new ArgumentNullException(nameof(xml));
-            var xDoc = XDocument.Parse(xml,
-                LoadOptions.SetBaseUri | LoadOptions.SetLineInfo | LoadOptions.PreserveWhitespace);
+
             string output;
+            var xmlDoc = XDocument.Parse(xml);
             using (var stringWriter = new CustomEncodingStringWriter(Encoding.UTF8))
             {
                 using (var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings
                 {
                     Encoding = Encoding.UTF8,
                     Indent = true,
-                    IndentChars = "\t",
-                    NewLineChars = "\r\n",
-                    NewLineHandling = NewLineHandling.Replace,
-                    ConformanceLevel = ConformanceLevel.Document
+                    OmitXmlDeclaration = true,
+                    NewLineHandling = NewLineHandling.None
                 }))
                 {
-                    xDoc.Save(xmlWriter);
+                    xmlDoc.Save(xmlWriter);
                 }
                 output = stringWriter.ToString();
             }
             return output;
-        }
-
-        public static string ToXmlString(string text, bool isAttribute = false)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            var sb = new StringBuilder();
-            for (var position = 0; position < text.Length; position++)
-            {
-                var chr = text[position];
-                switch (chr)
-                {
-                    case '<':
-                    {
-                        sb.Append("&lt;");
-                        break;
-                    }
-                    case '>':
-                    {
-                        sb.Append("&gt;");
-                        break;
-                    }
-                    case '&':
-                    {
-                        sb.Append("&amp;");
-                        break;
-                    }
-                    case '\"':
-                    {
-                        sb.Append(isAttribute ? "&quot;" : "\"");
-                        break;
-                    }
-                    case '\'':
-                    {
-                        sb.Append(isAttribute ? "&apos;" : "\'");
-                        break;
-                    }
-                    case '\n':
-                    {
-                        sb.Append(isAttribute ? "&#xA;" : "\n");
-                        break;
-                    }
-                    case '\r':
-                    {
-                        sb.Append(isAttribute ? "&#xD;" : "\r");
-                        break;
-                    }
-                    case '\t':
-                    {
-                        sb.Append(isAttribute ? "&#x9;" : "\t");
-                        break;
-                    }
-                    default:
-                    {
-                        if (chr < 32)
-                            throw new InvalidDataException(
-                                $"Invalid character '{chr} (Chr {Convert.ToInt16(chr)})' at position '{position}'");
-                        sb.Append(chr);
-                        break;
-                    }
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public static string FromXmlString(string text, bool isAttribute = false)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return text;
-
-            text = text.Replace("&amp;", "&").Replace("&lt;", "<").Replace("&gt;", ">")
-                .Replace("&quot;", "\"").Replace("&apos;", "'");
-            
-            if(isAttribute)
-                text = text.Replace("&#xA;", "\n").Replace("&#xD;", "\r").Replace("&#x9;", "\t");
-
-            return text;
         }
 
         #endregion
@@ -194,7 +113,6 @@ namespace ProjectCeleste.GameFiles.Tools.Xml
 
                 output = stringWriter.ToString();
             }
-
             return output;
         }
 
@@ -223,7 +141,6 @@ namespace ProjectCeleste.GameFiles.Tools.Xml
             {
                 output = (T) xmls.Deserialize(ms);
             }
-
             return output;
         }
 
