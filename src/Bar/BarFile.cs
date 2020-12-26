@@ -46,23 +46,16 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
         public short Day { get; }
         public short DayOfWeek { get; }
 
-        public byte[] ToByteArray()
+        public void WriteToBinaryStream(BinaryWriter bw)
         {
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(Year);
-                    bw.Write(Month);
-                    bw.Write(DayOfWeek);
-                    bw.Write(Day);
-                    bw.Write(Hour);
-                    bw.Write(Minute);
-                    bw.Write(Second);
-                    bw.Write(Msecond);
-                    return ms.ToArray();
-                }
-            }
+            bw.Write(Year);
+            bw.Write(Month);
+            bw.Write(DayOfWeek);
+            bw.Write(Day);
+            bw.Write(Hour);
+            bw.Write(Minute);
+            bw.Write(Second);
+            bw.Write(Msecond);
         }
     }
 
@@ -112,21 +105,14 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
 
         public BarEntryLastWriteTime LastWriteTime { get; }
 
-        public byte[] ToByteArray()
+        public void WriteToBinaryWriter(BinaryWriter bw)
         {
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(Offset);
-                    bw.Write(FileSize);
-                    bw.Write(FileSize2);
-                    bw.Write(LastWriteTime.ToByteArray());
-                    bw.Write(FileName.Length);
-                    bw.Write(Encoding.Unicode.GetBytes(FileName));
-                    return ms.ToArray();
-                }
-            }
+            bw.Write(Offset);
+            bw.Write(FileSize);
+            bw.Write(FileSize2);
+            LastWriteTime.WriteToBinaryStream(bw);
+            bw.Write(FileName.Length);
+            bw.Write(Encoding.Unicode.GetBytes(FileName));
         }
     }
 
@@ -146,8 +132,10 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
             RootPath = Encoding.Unicode.GetString(binaryReader.ReadBytes((int) rootNameLength * 2));
             NumberOfRootFiles = binaryReader.ReadUInt32();
             var barFileEntrys = new List<BarEntry>();
+
             for (uint i = 0; i < NumberOfRootFiles; i++)
                 barFileEntrys.Add(new BarEntry(binaryReader));
+
             BarFileEntrys = new ReadOnlyCollection<BarEntry>(barFileEntrys);
         }
 
@@ -157,20 +145,14 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
 
         public IReadOnlyCollection<BarEntry> BarFileEntrys { get; }
 
-        public byte[] ToByteArray()
+        public void WriteToBinaryWriter(BinaryWriter bw)
         {
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(RootPath.Length);
-                    bw.Write(Encoding.Unicode.GetBytes(RootPath));
-                    bw.Write(NumberOfRootFiles);
-                    foreach (var barFileEntry in BarFileEntrys)
-                        bw.Write(barFileEntry.ToByteArray());
-                    return ms.ToArray();
-                }
-            }
+            bw.Write(RootPath.Length);
+            bw.Write(Encoding.Unicode.GetBytes(RootPath));
+            bw.Write(NumberOfRootFiles);
+
+            foreach (var barFileEntry in BarFileEntrys)
+                barFileEntry.WriteToBinaryWriter(bw);
         }
     }
 }
