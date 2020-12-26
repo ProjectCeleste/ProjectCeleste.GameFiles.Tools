@@ -15,7 +15,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
 {
     public static class BarFileUtils
     {
-        public static void ExtractBarFiles(string inputFile, string outputPath, bool convertFile = true)
+        public static async Task ExtractBarFilesAsync(string inputFile, string outputPath, bool convertFile = true)
         {
             if (!File.Exists(inputFile))
                 throw new FileNotFoundException($"File '{inputFile}' not found!", inputFile);
@@ -39,7 +39,9 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                 }
             }
             var exceptions = new BlockingCollection<Exception>();
-            Parallel.ForEach(barFilesInfo.BarFileEntrys.ToArray(), barFileInfo =>
+
+            var barFiles = barFilesInfo.BarFileEntrys.ToArray();
+            foreach (var barFileInfo in barFiles)
             {
                 try
                 {
@@ -102,7 +104,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                                     var tempFileName2 =
                                         Path.Combine(Path.GetTempPath(),
                                             $"{Path.GetFileName(barFileInfo.FileName)}-{rnd.Next()}.tmp");
-                                    L33TZipUtils.ExtractL33TZipFile(tempFileName, tempFileName2);
+                                    await L33TZipUtils.ExtractL33TZipFileAsync(tempFileName, tempFileName2);
 
                                     if (File.Exists(tempFileName))
                                         File.Delete(tempFileName);
@@ -140,7 +142,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                                     var tempFileName2 =
                                         Path.Combine(Path.GetTempPath(),
                                             $"{Path.GetFileName(barFileInfo.FileName)}-{rnd.Next()}.tmp");
-                                    L33TZipUtils.CreateL33TZipFile(tempFileName, tempFileName2);
+                                    await L33TZipUtils.CompressFileAsL33TZipAsync(tempFileName, tempFileName2);
 
                                     if (File.Exists(tempFileName))
                                         File.Delete(tempFileName);
@@ -173,13 +175,13 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                 {
                     exceptions.Add(e);
                 }
-            });
+            }
             exceptions.CompleteAdding();
             if (exceptions.Count > 0)
                 throw new AggregateException(exceptions.ToArray());
         }
 
-        public static void ExtractBarFile(string inputFile, string file, string outputPath, bool convertFile = true)
+        public static async Task ExtractBarFile(string inputFile, string file, string outputPath, bool convertFile = true)
         {
             if (string.IsNullOrWhiteSpace(file))
                 throw new ArgumentNullException(nameof(file), "Value cannot be null or empty.");
@@ -268,7 +270,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                             var tempFileName2 =
                                 Path.Combine(Path.GetTempPath(),
                                     $"{Path.GetFileName(barFileInfo.FileName)}-{rnd.Next()}.tmp");
-                            L33TZipUtils.ExtractL33TZipFile(tempFileName, tempFileName2);
+                            await L33TZipUtils.ExtractL33TZipFileAsync(tempFileName, tempFileName2);
 
                             if (File.Exists(tempFileName))
                                 File.Delete(tempFileName);
@@ -306,7 +308,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                             var tempFileName2 =
                                 Path.Combine(Path.GetTempPath(),
                                     $"{Path.GetFileName(barFileInfo.FileName)}-{rnd.Next()}.tmp");
-                            L33TZipUtils.CreateL33TZipFile(tempFileName, tempFileName2);
+                            await L33TZipUtils.CompressFileAsL33TZipAsync(tempFileName, tempFileName2);
 
                             if (File.Exists(tempFileName))
                                 File.Delete(tempFileName);
@@ -336,7 +338,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
             }
         }
 
-        public static void CreateBarFile(IReadOnlyCollection<FileInfo> fileInfos, string inputPath,
+        public static async Task CreateBarFileAsync(IReadOnlyCollection<FileInfo> fileInfos, string inputPath,
             string outputFileName, string rootdir, bool ignoreLastWriteTime = true)
         {
             if (inputPath.EndsWith(Path.DirectorySeparatorChar.ToString()))
@@ -351,7 +353,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
                 if (file.FullName.EndsWith(".age4scn", StringComparison.OrdinalIgnoreCase) &&
                     L33TZipUtils.IsL33TZipFile(file.FullName))
                 {
-                    var data = L33TZipUtils.ExtractL33TZipFile(file.FullName);
+                    var data = await L33TZipUtils.ExtractL33TZipFileAsync(file.FullName);
                     File.Delete(file.FullName);
                     File.WriteAllBytes(file.FullName, data);
                     newFilesInfos.Add(new FileInfo(file.FullName));
@@ -396,16 +398,16 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
             }
         }
 
-        public static void CreateBarFile(string inputPath, string outputFileName, string rootdir,
+        public static async Task CreateBarFileAsync(string inputPath, string outputFileName, string rootdir,
             bool ignoreLastWriteTime = true)
         {
             var fileInfos = Directory.GetFiles(inputPath, "*", SearchOption.AllDirectories)
                 .Select(fileName => new FileInfo(fileName)).ToArray();
 
-            CreateBarFile(fileInfos, inputPath, outputFileName, rootdir, ignoreLastWriteTime);
+            await CreateBarFileAsync(fileInfos, inputPath, outputFileName, rootdir, ignoreLastWriteTime);
         }
 
-        public static void ConvertToNullBarFile(string inputFile, string outputPath, string fileName,
+        public static async Task ConvertToNullBarFile(string inputFile, string outputPath, string fileName,
             bool ignoreLastWriteTime = true)
         {
             if (!File.Exists(inputFile))
@@ -441,7 +443,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
             File.WriteAllText(nullFile, string.Empty);
 
             var outputFile = Path.Combine(outputPath, rootName, fileName);
-            CreateBarFile(inputPath, outputFile, rootName, ignoreLastWriteTime);
+            await CreateBarFileAsync(inputPath, outputFile, rootName, ignoreLastWriteTime);
         }
     }
 }
