@@ -1,5 +1,6 @@
 ﻿#region Using directives
 
+using Celeste.GameFiles.Tools.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -68,7 +69,7 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
             FileSize2 = binaryReader.ReadInt32();
             LastWriteTime = new BarEntryLastWriteTime(binaryReader);
             var length = binaryReader.ReadUInt32();
-            FileName = Encoding.Unicode.GetString(binaryReader.ReadBytes((int) length * 2));
+            FileName = binaryReader.ReadString((int)length * 2, Encoding.Unicode);
         }
 
         public BarEntry(string filename, int offset, int filesize, BarEntryLastWriteTime modifiedDates)
