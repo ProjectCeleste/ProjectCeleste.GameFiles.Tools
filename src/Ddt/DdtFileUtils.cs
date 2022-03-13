@@ -10,7 +10,9 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
             var outname = ddtFile.ToLower().Replace(".ddt", ".png");
             if (File.Exists(outname))
                 File.Delete(outname);
-            new DdtFile(File.ReadAllBytes(ddtFile)).Bitmap?.Save(outname, ImageFormat.Png);
+
+            var dtdFile = new DdtFile(File.ReadAllBytes(ddtFile));
+            dtdFile.SaveAsPng(outname);
         }
     }
 }

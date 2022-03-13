@@ -26,10 +26,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
 
         internal static byte[] DecompressDxt1(byte[] imageData, int width, int height)
         {
-            using (var imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt1(imageStream, width, height);
-            }
+            using var imageStream = new MemoryStream(imageData);
+            return DecompressDxt1(imageStream, width, height);
         }
 
         internal static byte[] DecompressDxt1(Stream imageStream, int width, int height)
@@ -51,10 +49,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
 
         internal static byte[] DecompressDxt3(byte[] imageData, int width, int height)
         {
-            using (var imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt3(imageStream, width, height);
-            }
+            using var imageStream = new MemoryStream(imageData);
+            return DecompressDxt3(imageStream, width, height);
         }
 
         internal static byte[] DecompressDxt3(Stream imageStream, int width, int height)
@@ -76,10 +72,8 @@ namespace ProjectCeleste.GameFiles.Tools.Ddt
 
         internal static byte[] DecompressDxt5(byte[] imageData, int width, int height)
         {
-            using (var imageStream = new MemoryStream(imageData))
-            {
-                return DecompressDxt5(imageStream, width, height);
-            }
+            using var imageStream = new MemoryStream(imageData);
+            return DecompressDxt5(imageStream, width, height);
         }
 
         internal static byte[] DecompressDxt5(Stream imageStream, int width, int height)

@@ -50,32 +50,28 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
 
         public BarFileHeader(byte[] data)
         {
-            using (var ms = new MemoryStream(data))
-            {
-                using (var br = new BinaryReader(ms))
-                {
-                    var espn = new string(br.ReadChars(4));
+            using var ms = new MemoryStream(data);
+            using var br = new BinaryReader(ms);
+            var espn = new string(br.ReadChars(4));
 
-                    if (espn != "ESPN")
-                        throw new Exception("File is not a valid BAR Archive");
+            if (espn != "ESPN")
+                throw new Exception("File is not a valid BAR Archive");
 
-                    Espn = espn;
+            Espn = espn;
 
-                    Unk0 = br.ReadUInt32();
+            Unk0 = br.ReadUInt32();
 
-                    Unk1 = br.ReadUInt32();
+            Unk1 = br.ReadUInt32();
 
-                    Unk2 = br.ReadBytes(66 * 4);
+            Unk2 = br.ReadBytes(66 * 4);
 
-                    Checksum = br.ReadUInt32();
+            Checksum = br.ReadUInt32();
 
-                    NumberOfFiles = br.ReadUInt32();
+            NumberOfFiles = br.ReadUInt32();
 
-                    FilesTableOffset = br.ReadUInt32();
+            FilesTableOffset = br.ReadUInt32();
 
-                    FileNameHash = br.ReadUInt32();
-                }
-            }
+            FileNameHash = br.ReadUInt32();
         }
 
         public string Espn { get; }
@@ -97,21 +93,17 @@ namespace ProjectCeleste.GameFiles.Tools.Bar
         //
         public byte[] ToByteArray()
         {
-            using (var ms = new MemoryStream())
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    bw.Write(Espn.ToCharArray());
-                    bw.Write(Unk0);
-                    bw.Write(Unk1);
-                    bw.Write(Unk2);
-                    bw.Write(Checksum);
-                    bw.Write(NumberOfFiles);
-                    bw.Write(FilesTableOffset);
-                    bw.Write(FileNameHash);
-                    return ms.ToArray();
-                }
-            }
+            using var ms = new MemoryStream();
+            using var bw = new BinaryWriter(ms);
+            bw.Write(Espn.ToCharArray());
+            bw.Write(Unk0);
+            bw.Write(Unk1);
+            bw.Write(Unk2);
+            bw.Write(Checksum);
+            bw.Write(NumberOfFiles);
+            bw.Write(FilesTableOffset);
+            bw.Write(FileNameHash);
+            return ms.ToArray();
         }
     }
 }
